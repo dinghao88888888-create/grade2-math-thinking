@@ -21,7 +21,8 @@ const state = {
   questions: [],
   currentIndex: 0,
   revealedAnswer: false,
-  visibleHints: 0
+  visibleHints: 0,
+  printTime: new Date().toISOString()
 };
 
 const chapterPicker = document.querySelector("#chapterPicker");
@@ -60,6 +61,31 @@ function formatDate(value) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(value));
+}
+
+function formatPrintTime(value) {
+  const parts = new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).formatToParts(new Date(value));
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day} ${byType.hour}:${byType.minute}`;
+}
+
+function currentChapterName() {
+  return state.selectedChapter === "all" ? "全部单元" : getChapter(state.selectedChapter)?.title ?? "练习";
+}
+
+function makeWorksheetTitle() {
+  return `${currentChapterName()}｜${levelLabel(state.selectedLevel)}｜${state.questions.length || state.selectedCount}题`;
+}
+
+function makePrintDocumentTitle() {
+  return `二年级数学_${currentChapterName()}_${levelLabel(state.selectedLevel)}_${formatPrintTime(state.printTime).replaceAll(":", "-").replace(" ", "_")}`;
 }
 
 function getSettings() {
@@ -175,6 +201,7 @@ function createPractice() {
     level: state.selectedLevel,
     count: state.selectedCount
   });
+  state.printTime = new Date().toISOString();
   clearPracticeState();
   saveSettings();
   state.view = "practice";
@@ -310,9 +337,17 @@ function renderSolution(question) {
 }
 
 function renderWorksheetList() {
+  const worksheetTitle = makeWorksheetTitle();
+  const printTime = formatPrintTime(state.printTime);
   return `
     <section class="worksheet-list">
-      <h3>本套题目</h3>
+      <div class="worksheet-title">
+        <div>
+          <h3>${escapeHtml(worksheetTitle)}</h3>
+          <p>打印时间：${escapeHtml(printTime)}</p>
+        </div>
+        <span>姓名：__________</span>
+      </div>
       ${state.questions
         .map(
           (question, index) => `
@@ -321,6 +356,15 @@ function renderWorksheetList() {
               <div>
                 <p><strong>${escapeHtml(question.chapterName)}｜${escapeHtml(question.skill)}</strong></p>
                 <p>${escapeHtml(question.question)}</p>
+                <div class="answer-space ${question.level === "thinking" || question.level === "mixed" ? "is-large" : ""}" aria-label="答题区域">
+                  <span>答：</span>
+                  <div class="answer-lines">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                  </div>
+                </div>
               </div>
             </div>
           `
@@ -531,7 +575,10 @@ document.addEventListener("click", (event) => {
     createPractice();
   }
   if (action === "print") {
-    window.print();
+    state.printTime = new Date().toISOString();
+    document.title = makePrintDocumentTitle();
+    render();
+    requestAnimationFrame(() => window.print());
   }
   if (action === "show-hint") {
     const question = currentQuestion();

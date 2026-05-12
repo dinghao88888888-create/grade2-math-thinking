@@ -559,8 +559,25 @@ textarea {
   padding: 16px;
 }
 
-.worksheet-list h3 {
-  margin: 0 0 12px;
+.worksheet-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.worksheet-title h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.worksheet-title p,
+.worksheet-title span {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .mini-question {
@@ -589,6 +606,35 @@ textarea {
 
 .mini-question p {
   margin: 0;
+}
+
+.answer-space {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.answer-lines {
+  display: grid;
+  gap: 13px;
+  padding-top: 12px;
+}
+
+.answer-lines i {
+  display: block;
+  height: 1px;
+  border-bottom: 1px solid #cbd5dc;
+}
+
+.answer-space.is-large .answer-lines {
+  gap: 15px;
+}
+
+.answer-space.is-large .answer-lines i:nth-child(4) {
+  display: block;
 }
 
 .wrong-list,
@@ -801,6 +847,10 @@ textarea {
 }
 
 @media print {
+  @page {
+    margin: 13mm 14mm;
+  }
+
   body {
     background: #fff;
   }
@@ -829,8 +879,67 @@ textarea {
     padding: 0;
   }
 
+  .worksheet-title {
+    align-items: flex-end;
+    margin-bottom: 10mm;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid #111827;
+  }
+
+  .worksheet-title h3 {
+    font-size: 20pt;
+    line-height: 1.25;
+  }
+
+  .worksheet-title p,
+  .worksheet-title span {
+    color: #111827;
+    font-size: 10.5pt;
+  }
+
   .mini-question {
     break-inside: avoid;
-    min-height: 90px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 42mm;
+    padding: 4mm 0 5mm;
+    border-top: 1px solid #cfd8de;
+  }
+
+  .mini-question:first-of-type {
+    border-top: 0;
+  }
+
+  .mini-index {
+    width: 24px;
+    height: 24px;
+    color: #111827;
+    background: transparent;
+    border-radius: 0;
+    font-size: 11pt;
+  }
+
+  .mini-question p {
+    font-size: 12pt;
+    line-height: 1.65;
+  }
+
+  .answer-space {
+    margin-top: 3mm;
+    color: #111827;
+    font-size: 11pt;
+  }
+
+  .answer-lines {
+    gap: 5.5mm;
+    padding-top: 5mm;
+  }
+
+  .answer-space:not(.is-large) .answer-lines i:nth-child(4) {
+    display: none;
+  }
+
+  .answer-lines i {
+    border-bottom-color: #9aa7b0;
   }
 }
