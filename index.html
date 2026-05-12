@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="人教版二年级下册数学目录驱动的思维练习网站，支持变式题、提示解析、错题本和家长概览。" />
+    <title>二年级数学思维练习</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">数</span>
+        <div>
+          <h1>二年级数学思维练习</h1>
+          <p>人教版二年级下册 · 目录驱动 · 变式出题</p>
+        </div>
+      </div>
+      <nav class="top-tabs" aria-label="主要功能">
+        <button class="tab-button is-active" type="button" data-view="practice">练习</button>
+        <button class="tab-button" type="button" data-view="wrongbook">错题本 <span id="wrongCount">0</span></button>
+        <button class="tab-button" type="button" data-view="parent">家长概览</button>
+        <button class="tab-button" type="button" data-view="library">目录题型</button>
+      </nav>
+    </header>
+
+    <main class="app-layout">
+      <aside class="control-panel" aria-label="练习设置">
+        <section class="panel-section">
+          <div class="section-heading">
+            <h2>选择单元</h2>
+            <button class="text-button" type="button" data-action="select-all-chapters">全部</button>
+          </div>
+          <div class="chapter-grid" id="chapterPicker"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2>练习类型</h2>
+          <label class="field-label" for="levelSelect">难度</label>
+          <select id="levelSelect"></select>
+
+          <label class="field-label" for="countSelect">题量</label>
+          <select id="countSelect">
+            <option value="5">5题</option>
+            <option value="8" selected>8题</option>
+            <option value="10">10题</option>
+            <option value="15">15题</option>
+            <option value="20">20题</option>
+          </select>
+
+          <div class="button-row">
+            <button class="primary-button" type="button" data-action="generate">生成练习</button>
+            <button class="icon-button" type="button" data-action="print" title="打印当前练习" aria-label="打印当前练习">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7zM7 6h10" /></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel-section compact">
+          <h2>当前套题</h2>
+          <div class="session-stats" id="sessionStats"></div>
+        </section>
+      </aside>
+
+      <section class="content-area">
+        <div id="viewRoot"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
