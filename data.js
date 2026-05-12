@@ -1001,6 +1001,441 @@ export const templates = [
         extension: `如果只有${quotient}条船，最多能坐${quotient * divisor}人，还差${remainder}个座位。`
       });
     }
+  },
+  {
+    id: "time-order-cards",
+    chapterId: "time",
+    level: "variant",
+    skill: "时间排序",
+    title: "彩色时间卡",
+    factory(template) {
+      const base = randInt(7 * 60 + 10, 8 * 60 + 20);
+      const times = shuffle([base, base + 15, base + 35, base + 50]);
+      const sorted = [...times].sort((a, b) => a - b);
+      const cards = times.map((time, index) => ({ label: String.fromCharCode(65 + index), text: digitalTime(time) }));
+      return makeQuestion(template, {
+        question: `四张彩色时间卡分别是${times.map(digitalTime).join("、")}。请按从早到晚的顺序排列，并说说你先比较什么。`,
+        answer: sorted.map(digitalTime).join(" < "),
+        hints: ["先比小时，小时相同再比分。", "可以把时间卡从左到右摆一摆。"],
+        steps: [`这些时间都可以先看小时。`, `小时相同时，再比较分钟。`, `从早到晚是${sorted.map(digitalTime).join("、")}。`],
+        extension: `如果再加一张${digitalTime(base + 25)}的卡，它应排在${digitalTime(base + 15)}和${digitalTime(base + 35)}之间。`,
+        visual: { type: "choice-board", label: "时间卡排序", cards }
+      });
+    }
+  },
+  {
+    id: "time-route-choice",
+    chapterId: "time",
+    level: "thinking",
+    skill: "路线时间比较",
+    title: "选哪条路线",
+    factory(template) {
+      const red = randInt(18, 35);
+      const blue = red + choice([-8, -5, 6, 9]);
+      const green = red + choice([3, 7, 12]);
+      const min = Math.min(red, blue, green);
+      const answer = min === red ? "红色路线" : min === blue ? "蓝色路线" : "绿色路线";
+      return makeQuestion(template, {
+        question: `到科技馆有三条路线：红色路线${red}分钟，蓝色路线${blue}分钟，绿色路线${green}分钟。想最快到达，应选哪条路线？最慢的路线比最快的路线多用几分钟？`,
+        answer: `应选${answer}。最慢比最快多${Math.max(red, blue, green) - min}分钟。`,
+        hints: ["先找三条路线中最小的时间。", "再用最大时间减最小时间。"],
+        steps: [`三条路线用时是${red}分、${blue}分、${green}分。`, `最快的是${min}分，所以选${answer}。`, `最慢比最快多${Math.max(red, blue, green)}-${min}=${Math.max(red, blue, green) - min}分。`],
+        extension: `如果出发时间是8:20，走最快路线会在${formatTime(8 * 60 + 20 + min)}到达。`,
+        visual: {
+          type: "choice-board",
+          label: "彩色路线",
+          cards: [
+            { label: "红", text: `${red}分` },
+            { label: "蓝", text: `${blue}分` },
+            { label: "绿", text: `${green}分` }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "time-missing-break",
+    chapterId: "time",
+    level: "thinking",
+    skill: "时间反推",
+    title: "中间休息多久",
+    factory(template) {
+      const start = randInt(18 * 60 + 10, 19 * 60);
+      const first = choice([12, 15, 18, 20]);
+      const second = choice([20, 25, 30]);
+      const rest = choice([5, 8, 10, 12]);
+      const finish = start + first + rest + second;
+      return makeQuestion(template, {
+        question: `${choice(names)}${digitalTime(start)}开始做两项任务：第一项${first}分钟，中间休息一会儿，第二项${second}分钟，${digitalTime(finish)}完成。中间休息了多少分钟？`,
+        answer: `${rest}分钟。`,
+        hints: ["先算从开始到完成一共过了多久。", "总时间减去两项任务时间，就是休息时间。"],
+        steps: [`从${digitalTime(start)}到${digitalTime(finish)}共${finish - start}分钟。`, `两项任务共${first}+${second}=${first + second}分钟。`, `休息时间=${finish - start}-${first + second}=${rest}分钟。`],
+        extension: `如果休息少2分钟，完成时间会提前到${formatTime(finish - 2)}。`,
+        visual: { type: "timeline", label: "时间拼图", segments: [first, rest, second] }
+      });
+    }
+  },
+  {
+    id: "remainder-picture-equation",
+    chapterId: "remainder",
+    level: "variant",
+    skill: "看图列式",
+    title: "看分组盒列式",
+    factory(template) {
+      const groupSize = randInt(4, 8);
+      const groups = randInt(3, 7);
+      const left = randInt(1, groupSize - 1);
+      const total = groupSize * groups + left;
+      return makeQuestion(template, {
+        question: `图中每盒放${groupSize}张卡片，已经装满${groups}盒，还剩${left}张。请列出一个有余数的除法算式，并解释商和余数分别表示什么。`,
+        answer: `${total}÷${groupSize}=${groups}……${left}。商${groups}表示装满${groups}盒，余数${left}表示还剩${left}张。`,
+        hints: ["先求一共有多少张。", "每盒张数是除数，盒数是商。"],
+        steps: [`总张数=${groupSize}×${groups}+${left}=${total}。`, `按每盒${groupSize}张分：${total}÷${groupSize}=${groups}……${left}。`],
+        extension: `如果想再装满1盒，还需要${groupSize - left}张。`,
+        visual: { type: "grouping", label: "看图列式", total, groupSize }
+      });
+    }
+  },
+  {
+    id: "remainder-seat-grid",
+    chapterId: "remainder",
+    level: "thinking",
+    skill: "座位推理",
+    title: "座位够不够",
+    factory(template) {
+      const rows = randInt(3, 5);
+      const cols = randInt(4, 7);
+      const seats = rows * cols;
+      const students = seats + randInt(1, cols - 1);
+      return makeQuestion(template, {
+        question: `礼堂先摆了${rows}排座位，每排${cols}个。现在有${students}人参加活动，这些座位够吗？如果不够，还至少要加几个座位？`,
+        answer: `不够，还至少要加${students - seats}个座位。`,
+        hints: ["先看图中一共有多少个座位。", "再和人数比较。"],
+        steps: [`座位数=${rows}×${cols}=${seats}个。`, `${students}>${seats}，所以不够。`, `还差${students}-${seats}=${students - seats}个座位。`],
+        extension: `如果再加1排${cols}个座位，就一共有${seats + cols}个座位，够坐。`,
+        visual: { type: "ticket-grid", label: "座位图", rows, cols, filled: seats }
+      });
+    }
+  },
+  {
+    id: "relations-array-picture",
+    chapterId: "relations",
+    level: "foundation",
+    skill: "阵列看图",
+    title: "看方阵说关系",
+    factory(template) {
+      const rows = randInt(3, 6);
+      const cols = randInt(4, 8);
+      const total = rows * cols;
+      return makeQuestion(template, {
+        question: `彩色方格图有${rows}行，每行${cols}个。请写出一个乘法算式和两个除法算式。`,
+        answer: `${rows}×${cols}=${total}；${total}÷${rows}=${cols}；${total}÷${cols}=${rows}。`,
+        hints: ["行数、每行个数、总数之间可以互相转换。", "乘法求总数，除法反推每行或行数。"],
+        steps: [`先求总数：${rows}×${cols}=${total}。`, `总数÷行数=每行个数：${total}÷${rows}=${cols}。`, `总数÷每行个数=行数：${total}÷${cols}=${rows}。`],
+        extension: `如果增加1行，总数会增加${cols}个。`,
+        visual: { type: "ticket-grid", label: "彩色方阵", rows, cols, filled: total }
+      });
+    }
+  },
+  {
+    id: "relations-choice-story",
+    chapterId: "relations",
+    level: "variant",
+    skill: "选正确问题",
+    title: "哪个问题能用除法",
+    factory(template) {
+      const total = randInt(36, 72);
+      const groups = choice([4, 6, 8, 9]);
+      const per = Math.floor(total / groups);
+      const realTotal = per * groups;
+      return makeQuestion(template, {
+        question: `有${realTotal}张任务卡，平均放进${groups}个收纳格。下面哪个问题可以用${realTotal}÷${groups}解决？A.一共有几张卡？B.每格放几张？C.还要再买几张？D.哪种颜色最多？`,
+        answer: `选B。${realTotal}÷${groups}求的是每格放几张。`,
+        hints: ["除以格数，表示把总数平均分。", "看问题是不是在问每份有多少。"],
+        steps: [`${realTotal}是总数，${groups}是份数。`, `总数÷份数=每份数。`, `所以${realTotal}÷${groups}解决的是“每格放几张”。`],
+        extension: `如果问“一共有几张”，应该知道每格几张和格数后用乘法。`,
+        visual: {
+          type: "choice-board",
+          label: "选择题卡",
+          cards: [
+            { label: "A", text: "总数" },
+            { label: "B", text: "每份" },
+            { label: "C", text: "增加" },
+            { label: "D", text: "颜色" }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "numbers-abacus-read",
+    chapterId: "numbers",
+    level: "foundation",
+    skill: "计数器读数",
+    title: "彩色计数器",
+    factory(template) {
+      const digits = [randInt(1, 5), randInt(0, 6), randInt(0, 6), randInt(0, 6)];
+      const number = digits[0] * 1000 + digits[1] * 100 + digits[2] * 10 + digits[3];
+      return makeQuestion(template, {
+        question: `看彩色计数器：千位${digits[0]}颗，百位${digits[1]}颗，十位${digits[2]}颗，个位${digits[3]}颗。这个数是多少？它由哪些计数单位组成？`,
+        answer: `${number}，由${digits[0]}个千、${digits[1]}个百、${digits[2]}个十、${digits[3]}个一组成。`,
+        hints: ["每一根杆代表一个数位。", "从千位到个位依次写数字。"],
+        steps: [`千位是${digits[0]}，百位是${digits[1]}，十位是${digits[2]}，个位是${digits[3]}。`, `所以这个数是${number}。`],
+        extension: `如果百位多1颗，这个数会变成${number + 100}。`,
+        visual: { type: "abacus", label: "彩色计数器", digits }
+      });
+    }
+  },
+  {
+    id: "numbers-numberline-estimate",
+    chapterId: "numbers",
+    level: "variant",
+    skill: "数轴估计",
+    title: "数轴上更接近谁",
+    factory(template) {
+      const start = choice([1000, 2000, 3000, 4000]);
+      const end = start + 1000;
+      const marker = start + randInt(120, 880);
+      const closeTo = marker - start < end - marker ? start : end;
+      return makeQuestion(template, {
+        question: `数轴从${start}到${end}，标出的数是${marker}。它更接近${start}还是${end}？相差多少？`,
+        answer: `更接近${closeTo}，相差${Math.abs(marker - closeTo)}。`,
+        hints: ["分别算它离两端有多远。", "距离小的那一端就是更接近的数。"],
+        steps: [`离${start}有${marker - start}。`, `离${end}有${end - marker}。`, `${Math.min(marker - start, end - marker)}更小，所以更接近${closeTo}。`],
+        extension: `如果要估成整千数，可以估成${closeTo}。`,
+        visual: { type: "number-line", label: "彩色数轴", start, end, marker }
+      });
+    }
+  },
+  {
+    id: "numbers-condition-choice",
+    chapterId: "numbers",
+    level: "thinking",
+    skill: "多条件筛选",
+    title: "找符合条件的数",
+    factory(template) {
+      const target = randInt(3000, 8999);
+      const thousands = Math.floor(target / 1000);
+      const hundreds = Math.floor((target % 1000) / 100);
+      const farOption = target + 1000 <= 9999 ? target + 1000 : target - 1000;
+      const options = shuffle([target, target + 100, target - 10, farOption]);
+      return makeQuestion(template, {
+        question: `四张数字卡中，只有一个数符合：千位是${thousands}，百位是${hundreds}，并且比${target - 5}大。请选择这个数，并说明你排除了哪些。`,
+        answer: `${target}。`,
+        hints: ["先看千位，再看百位。", "最后检查是否比给出的数大。"],
+        steps: [`目标数千位是${thousands}，百位是${hundreds}。`, `在${options.join("、")}中筛选。`, `符合所有条件的是${target}。`],
+        extension: `如果条件改为“比${target + 5}小”，${target}仍然符合。`,
+        visual: {
+          type: "choice-board",
+          label: "数字卡筛选",
+          cards: options.map((value, index) => ({ label: String.fromCharCode(65 + index), text: value }))
+        }
+      });
+    }
+  },
+  {
+    id: "addsub-route-distance",
+    chapterId: "addsub",
+    level: "variant",
+    skill: "路线距离",
+    title: "两条路线差多少",
+    factory(template) {
+      const red = randInt(320, 680);
+      const blue = red + choice([-90, -60, 70, 110]);
+      const diff = Math.abs(red - blue);
+      const shorter = red < blue ? "红色路线" : "蓝色路线";
+      return makeQuestion(template, {
+        question: `公园里有两条路线：红色路线${red}米，蓝色路线${blue}米。哪条路线更短？两条路线相差多少米？`,
+        answer: `${shorter}更短，相差${diff}米。`,
+        hints: ["先比较两个长度。", "再用大数减小数。"],
+        steps: [`比较${red}和${blue}，较小的是${Math.min(red, blue)}。`, `相差${Math.max(red, blue)}-${Math.min(red, blue)}=${diff}米。`],
+        extension: `如果走两条路线各一次，一共走${red + blue}米。`,
+        visual: {
+          type: "choice-board",
+          label: "路线比较",
+          cards: [
+            { label: "红", text: `${red}米` },
+            { label: "蓝", text: `${blue}米` }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "addsub-receipt-error",
+    chapterId: "addsub",
+    level: "thinking",
+    skill: "小票纠错",
+    title: "找出小票错误",
+    factory(template) {
+      const a = randInt(180, 360);
+      const b = randInt(120, 260);
+      const correct = a + b;
+      const shown = correct + choice([-20, -10, 10, 30]);
+      return makeQuestion(template, {
+        question: `彩色小票上写着：红色商品${a}元，蓝色商品${b}元，合计${shown}元。这个合计对吗？如果不对，正确合计是多少？`,
+        answer: `不对，正确合计是${correct}元。`,
+        hints: ["重新把两个价格相加。", "比较你算出的合计和小票上的合计。"],
+        steps: [`${a}+${b}=${correct}元。`, `${correct}≠${shown}，所以小票合计不对。`],
+        extension: `小票上的数比正确合计${shown > correct ? "多" : "少"}${Math.abs(shown - correct)}元。`,
+        visual: {
+          type: "shopping",
+          label: "小票纠错",
+          prices: [a, b, shown],
+          items: [
+            { name: "红色商品", color: "红", price: a },
+            { name: "蓝色商品", color: "蓝", price: b },
+            { name: "小票合计", color: "黄", price: shown }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "addsub-estimate-line",
+    chapterId: "addsub",
+    level: "thinking",
+    skill: "估算判断",
+    title: "先估后算",
+    factory(template) {
+      const a = randInt(380, 760);
+      const b = randInt(140, 330);
+      const exact = a - b;
+      const estimate = Math.round(exact / 100) * 100;
+      return makeQuestion(template, {
+        question: `计算${a}-${b}前，先估一估结果大约是多少。再准确计算，并判断估算是否合理。`,
+        answer: `准确结果是${exact}，大约是${estimate}，估算合理。`,
+        hints: ["可以把数看成接近的整百数。", "估算后还要准确计算验证。"],
+        steps: [`准确计算：${a}-${b}=${exact}。`, `${exact}接近${estimate}，所以可以估成${estimate}左右。`],
+        extension: `如果${a}增加100，差会增加100，变成${exact + 100}。`,
+        visual: { type: "number-line", label: "估算数轴", start: Math.max(0, estimate - 300), end: estimate + 300, marker: exact }
+      });
+    }
+  },
+  {
+    id: "comics-four-frame",
+    chapterId: "comics",
+    level: "variant",
+    skill: "分镜读图",
+    title: "四格任务图",
+    factory(template) {
+      const start = randInt(20, 45);
+      const add = randInt(8, 20);
+      const give = randInt(5, 18);
+      const left = start + add - give;
+      return makeQuestion(template, {
+        question: `四格图：图1有${start}张卡片，图2又加入${add}张，图3送给同学${give}张，图4要求还剩多少张。请按图的顺序列式。`,
+        answer: `${start}+${add}-${give}=${left}，还剩${left}张。`,
+        hints: ["按图1到图4的顺序读信息。", "先增加，再减少。"],
+        steps: [`图1到图2：${start}+${add}=${start + add}。`, `图3送出${give}张：${start + add}-${give}=${left}。`],
+        extension: `如果图3送出的人数少2张，就会还剩${left + 2}张。`,
+        visual: { type: "story", label: "四格图", values: [start, add, give, left] }
+      });
+    }
+  },
+  {
+    id: "comics-choose-question",
+    chapterId: "comics",
+    level: "thinking",
+    skill: "提出问题",
+    title: "哪一个是两步问题",
+    factory(template) {
+      const morning = randInt(18, 36);
+      const afternoon = randInt(12, 28);
+      const used = randInt(8, 20);
+      return makeQuestion(template, {
+        question: `图中信息：上午收集${morning}张卡片，下午收集${afternoon}张，做展示板用了${used}张。下面哪个问题需要两步计算？A.上午收集多少张？B.全天收集多少张？C.做完展示板还剩多少张？D.下午比上午少多少张？`,
+        answer: `选C。要先算全天收集多少张，再减去用掉的。`,
+        hints: ["两步问题通常要先得到一个中间结果。", "看哪个问题既要合起来，又要减掉。"],
+        steps: [`全天收集：${morning}+${afternoon}=${morning + afternoon}张。`, `还剩：${morning + afternoon}-${used}=${morning + afternoon - used}张。`, `所以C是两步问题。`],
+        extension: `B只需要一步加法，D只需要一步减法。`,
+        visual: {
+          type: "choice-board",
+          label: "问题选择",
+          cards: [
+            { label: "A", text: "上午" },
+            { label: "B", text: "全天" },
+            { label: "C", text: "剩下" },
+            { label: "D", text: "相差" }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "review-color-fair",
+    chapterId: "review",
+    level: "mixed",
+    skill: "综合任务",
+    title: "彩色游园会",
+    factory(template) {
+      const start = randInt(9 * 60, 10 * 60);
+      const games = randInt(4, 7);
+      const per = choice([6, 8, 10]);
+      const tickets = games * per + randInt(1, per - 1);
+      const finish = start + games * per;
+      return makeQuestion(template, {
+        question: `游园会从${digitalTime(start)}开始，每个游戏体验${per}分钟。小云体验了${games}个游戏后，还剩${tickets}张彩色券。她体验完这些游戏是几点？这些彩色券如果每${per}张装一袋，可以装满几袋，还剩几张？`,
+        answer: `体验完是${formatTime(finish)}；彩色券可以装满${Math.floor(tickets / per)}袋，还剩${tickets % per}张。`,
+        hints: ["先解决时间问题，再解决有余数除法。", "一个题里可能有两个不同的数学模型。"],
+        steps: [`时间：${games}×${per}=${games * per}分，${digitalTime(start)}+${games * per}分=${digitalTime(finish)}。`, `分券：${tickets}÷${per}=${Math.floor(tickets / per)}……${tickets % per}。`],
+        extension: `如果再得到${per - (tickets % per)}张券，就能多装满1袋。`,
+        visual: { type: "timeline", label: "综合任务线", segments: [per, per, per, per] }
+      });
+    }
+  },
+  {
+    id: "review-number-ticket",
+    chapterId: "review",
+    level: "thinking",
+    skill: "数位与运算",
+    title: "门票编号",
+    factory(template) {
+      const thousands = randInt(2, 8);
+      const hundreds = randInt(1, 9);
+      const tens = randInt(0, 9);
+      const ones = randInt(0, 9);
+      const number = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
+      const add = choice([100, 200, 300]);
+      return makeQuestion(template, {
+        question: `门票编号是${number}。它的百位数字是多少？如果下一组门票编号比它大${add}，下一组编号是多少？`,
+        answer: `百位数字是${hundreds}；下一组编号是${number + add}。`,
+        hints: ["先看数位。", "增加几百，只改变百位附近的数。"],
+        steps: [`${number}的百位是${hundreds}。`, `${number}+${add}=${number + add}。`],
+        extension: `如果编号减少100，会变成${number - 100}。`,
+        visual: { type: "place-value", label: "门票编号", number, digits: [thousands, hundreds, tens, ones] }
+      });
+    }
+  },
+  {
+    id: "review-logic-choice",
+    chapterId: "review",
+    level: "thinking",
+    skill: "判断与说明",
+    title: "谁的说法对",
+    factory(template) {
+      const total = randInt(45, 78);
+      const per = randInt(5, 9);
+      const q = Math.floor(total / per);
+      const r = total % per || 2;
+      const adjustedTotal = q * per + r;
+      return makeQuestion(template, {
+        question: `${adjustedTotal}张任务卡，每${per}张放一袋。A说能正好装${q}袋，B说装满${q}袋后还剩${r}张，C说至少需要${q}袋。谁的说法正确？`,
+        answer: `B正确。${adjustedTotal}÷${per}=${q}……${r}，至少需要${q + 1}袋。`,
+        hints: ["先算有余数的除法。", "注意“装满几袋”和“至少需要几袋”不是同一个问题。"],
+        steps: [`${adjustedTotal}÷${per}=${q}……${r}。`, `能装满${q}袋，还剩${r}张，所以B正确。`, `如果问至少需要几袋，应是${q + 1}袋。`],
+        extension: `A错在忽略了余数，C错在没有给剩下的卡片准备袋子。`,
+        visual: {
+          type: "choice-board",
+          label: "说法判断",
+          cards: [
+            { label: "A", text: "正好" },
+            { label: "B", text: "有剩" },
+            { label: "C", text: "至少" }
+          ]
+        }
+      });
+    }
   }
 ];
 

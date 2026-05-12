@@ -861,6 +861,156 @@ textarea {
   color: #be185d;
 }
 
+.numberline-scene {
+  position: relative;
+  width: min(560px, 100%);
+  padding: 28px 16px 10px;
+}
+
+.numberline-track {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  height: 16px;
+  border-top: 6px solid #38bdf8;
+}
+
+.numberline-track span {
+  margin-top: 9px;
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.numberline-track i {
+  position: absolute;
+  top: -13px;
+  width: 18px;
+  height: 18px;
+  background: #f97316;
+  border: 3px solid #fff7ed;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.numberline-marker {
+  position: absolute;
+  top: 0;
+  padding: 2px 8px;
+  color: #fff;
+  background: #f97316;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  transform: translateX(-50%);
+}
+
+.choice-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(70px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.choice-card {
+  display: grid;
+  min-height: 78px;
+  place-items: center;
+  padding: 10px;
+  color: #fff;
+  background: var(--choice);
+  border-radius: var(--radius);
+  box-shadow: inset 0 -10px 0 rgba(15, 23, 42, 0.14);
+}
+
+.choice-card span {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: #0f172a;
+  background: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.choice-card strong {
+  font-size: 17px;
+  text-align: center;
+}
+
+.ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 34px);
+  gap: 7px;
+}
+
+.ticket-grid span {
+  display: inline-grid;
+  width: 34px;
+  height: 30px;
+  place-items: center;
+  color: #64748b;
+  background: #e2e8f0;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ticket-grid span.is-filled {
+  color: #fff;
+  background: #22c55e;
+  border-color: #16a34a;
+}
+
+.abacus-scene {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(64px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.abacus-rod {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  min-height: 118px;
+  padding: 9px;
+  background: #ffffff;
+  border: 2px solid var(--rod);
+  border-radius: var(--radius);
+}
+
+.abacus-rod span {
+  color: var(--rod);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.abacus-rod div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  gap: 3px;
+  min-height: 62px;
+  padding: 3px 6px;
+  border-left: 4px solid var(--rod);
+}
+
+.abacus-rod i {
+  display: block;
+  width: 22px;
+  height: 8px;
+  background: var(--rod);
+  border-radius: 999px;
+}
+
+.abacus-rod strong {
+  color: #0f172a;
+  font-size: 20px;
+}
+
 .answer-box {
   display: grid;
   gap: 8px;
@@ -1426,6 +1576,66 @@ textarea {
   .mission-scene span {
     min-width: 22mm;
     min-height: 15mm;
+  }
+
+  .choice-board {
+    grid-template-columns: repeat(4, minmax(18mm, 1fr));
+    gap: 2mm;
+  }
+
+  .choice-card {
+    min-height: 18mm;
+    padding: 2mm;
+  }
+
+  .choice-card span {
+    width: 7mm;
+    height: 7mm;
+    font-size: 8pt;
+  }
+
+  .choice-card strong {
+    font-size: 10pt;
+  }
+
+  .ticket-grid {
+    grid-template-columns: repeat(var(--cols), 8mm);
+    gap: 1.5mm;
+  }
+
+  .ticket-grid span {
+    width: 8mm;
+    height: 7mm;
+    font-size: 7.5pt;
+  }
+
+  .numberline-scene {
+    width: 100%;
+    padding: 8mm 5mm 3mm;
+  }
+
+  .numberline-marker,
+  .numberline-track span {
+    font-size: 8pt;
+  }
+
+  .abacus-scene {
+    grid-template-columns: repeat(4, minmax(16mm, 1fr));
+    gap: 2mm;
+  }
+
+  .abacus-rod {
+    min-height: 27mm;
+    padding: 2mm;
+  }
+
+  .abacus-rod div {
+    min-height: 14mm;
+  }
+
+  .abacus-rod i {
+    width: 6mm;
+    height: 2mm;
   }
 
   .answer-space {

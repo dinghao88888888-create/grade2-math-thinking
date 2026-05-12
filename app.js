@@ -168,6 +168,10 @@ function renderQuestionVisual(question, mode = "screen") {
     shopping: renderShoppingVisual,
     timeline: renderTimelineVisual,
     "bar-model": renderBarModelVisual,
+    "number-line": renderNumberLineVisual,
+    "choice-board": renderChoiceBoardVisual,
+    "ticket-grid": renderTicketGridVisual,
+    abacus: renderAbacusVisual,
     story: renderStoryVisual,
     mission: renderMissionVisual
   }[visual.type] ?? renderMissionVisual;
@@ -323,6 +327,68 @@ function renderBarModelVisual(visual, question) {
           <span>数量${index + 1}</span>
           <div style="--bar:${PLACE_COLORS[index % PLACE_COLORS.length]}; width:${Math.min(92, 36 + value * 7)}%"></div>
           <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderNumberLineVisual(visual, question) {
+  const start = Number(visual.start ?? 0);
+  const end = Number(visual.end ?? 100);
+  const marker = Number(visual.marker ?? Math.round((start + end) / 2));
+  const percent = Math.max(6, Math.min(94, ((marker - start) / (end - start || 1)) * 100));
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="numberline-scene">
+      <div class="numberline-track">
+        <span>${escapeHtml(start)}</span>
+        <i style="left:${percent}%"></i>
+        <span>${escapeHtml(end)}</span>
+      </div>
+      <div class="numberline-marker" style="left:${percent}%">${escapeHtml(marker)}</div>
+    </div>
+  `;
+}
+
+function renderChoiceBoardVisual(visual, question) {
+  const cards = visual.cards?.length ? visual.cards : ["A", "B", "C", "D"].map((label) => ({ label, text: "?" }));
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="choice-board">
+      ${cards.map((card, index) => `
+        <div class="choice-card" style="--choice:${PLACE_COLORS[index % PLACE_COLORS.length]}">
+          <span>${escapeHtml(card.label)}</span>
+          <strong>${escapeHtml(card.text)}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderTicketGridVisual(visual, question) {
+  const rows = Math.max(1, Number(visual.rows ?? 3));
+  const cols = Math.max(1, Number(visual.cols ?? 4));
+  const filled = Math.min(rows * cols, Number(visual.filled ?? rows * cols));
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="ticket-grid" style="--cols:${cols}">
+      ${Array.from({ length: rows * cols }, (_, index) => `<span class="${index < filled ? "is-filled" : ""}">${index + 1}</span>`).join("")}
+    </div>
+  `;
+}
+
+function renderAbacusVisual(visual, question) {
+  const digits = visual.digits?.length ? visual.digits : ["0", "0", "0", "0"];
+  const labels = ["千", "百", "十", "个"];
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="abacus-scene">
+      ${digits.map((digit, index) => `
+        <div class="abacus-rod" style="--rod:${PLACE_COLORS[index % PLACE_COLORS.length]}">
+          <span>${labels[index]}</span>
+          <div>${Array.from({ length: Number(digit) || 0 }, () => "<i></i>").join("")}</div>
+          <strong>${escapeHtml(digit)}</strong>
         </div>
       `).join("")}
     </div>
