@@ -370,6 +370,37 @@ export const templates = [
     }
   },
   {
+    id: "remainder-color-box",
+    chapterId: "remainder",
+    level: "thinking",
+    skill: "彩色分组推理",
+    title: "彩色收纳盒",
+    factory(template) {
+      const groupSize = randInt(4, 7);
+      const fullGroups = randInt(4, 8);
+      const blue = groupSize * fullGroups + randInt(1, groupSize - 1);
+      const yellow = groupSize * randInt(2, 5);
+      const remainder = blue % groupSize;
+      return makeQuestion(template, {
+        question: `彩色收纳盒规定：每盒正好放${groupSize}张同色卡片。蓝色卡片有${blue}张，黄色卡片有${yellow}张。只看蓝色卡片，可以装满几盒？还剩几张？黄色卡片会影响蓝色卡片的答案吗？`,
+        answer: `蓝色卡片可以装满${Math.floor(blue / groupSize)}盒，还剩${remainder}张。黄色卡片不影响蓝色卡片的分组。`,
+        hints: ["题目问蓝色卡片，就先只看蓝色数量。", "用蓝色卡片数量除以每盒张数。"],
+        steps: [
+          `蓝色卡片：${blue}÷${groupSize}=${Math.floor(blue / groupSize)}……${remainder}。`,
+          `所以蓝色卡片装满${Math.floor(blue / groupSize)}盒，还剩${remainder}张。`,
+          `黄色卡片是另一种颜色，不参与蓝色卡片的分组。`
+        ],
+        extension: `如果把黄色卡片也单独装盒，黄色卡片可以装满${yellow / groupSize}盒。`,
+        visual: {
+          type: "grouping",
+          label: "蓝色分组盒",
+          total: blue,
+          groupSize
+        }
+      });
+    }
+  },
+  {
     id: "remainder-inverse",
     chapterId: "remainder",
     level: "thinking",
@@ -593,6 +624,42 @@ export const templates = [
     }
   },
   {
+    id: "numbers-color-place",
+    chapterId: "numbers",
+    level: "thinking",
+    skill: "彩色数位推理",
+    title: "彩色数位车",
+    factory(template) {
+      const thousands = randInt(1, 9);
+      const hundreds = randInt(1, 9);
+      const tens = randInt(1, 9);
+      const ones = randInt(0, 9);
+      const number = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
+      const focus = choice([
+        { color: "橙色", place: "百位", digit: hundreds, unit: "百" },
+        { color: "绿色", place: "十位", digit: tens, unit: "十" },
+        { color: "粉色", place: "个位", digit: ones, unit: "一" }
+      ]);
+      return makeQuestion(template, {
+        question: `彩色数位车上，紫色车厢是千位，橙色车厢是百位，绿色车厢是十位，粉色车厢是个位。车厢里的数字组成${number}。${focus.color}车厢里的数字表示几个${focus.unit}？这个数是多少？`,
+        answer: `${focus.color}车厢在${focus.place}，数字是${focus.digit}，表示${focus.digit}个${focus.unit}；这个数是${number}。`,
+        hints: ["先根据颜色找到对应的数位。", "同一个数字放在不同数位，表示的意义不同。"],
+        steps: [
+          `紫色、橙色、绿色、粉色依次表示千位、百位、十位、个位。`,
+          `${focus.color}对应${focus.place}，车厢里的数字是${focus.digit}。`,
+          `所以它表示${focus.digit}个${focus.unit}，整个数是${number}。`
+        ],
+        extension: `如果把绿色车厢的数字增加1，这个数会增加10，变成${number + 10}。`,
+        visual: {
+          type: "place-value",
+          label: "彩色数位车",
+          number,
+          digits: [thousands, hundreds, tens, ones]
+        }
+      });
+    }
+  },
+  {
     id: "numbers-riddle",
     chapterId: "numbers",
     level: "thinking",
@@ -684,6 +751,42 @@ export const templates = [
         hints: ["先算一共花了多少钱。", "再用付的钱减去花的钱。"],
         steps: [`一共花了${first}+${second}=${first + second}元。`, `应找回${pay}-${first + second}=${change}元。`],
         extension: `如果台灯便宜20元，应找回${change + 20}元。`
+      });
+    }
+  },
+  {
+    id: "addsub-color-tags",
+    chapterId: "addsub",
+    level: "thinking",
+    skill: "彩色价签推理",
+    title: "彩色商店任务",
+    factory(template) {
+      const red = randInt(120, 260);
+      const blue = randInt(90, 230);
+      const green = randInt(60, 180);
+      const pay = Math.ceil((red + blue + randInt(40, 120)) / 50) * 50;
+      const change = pay - red - blue;
+      return makeQuestion(template, {
+        question: `彩色商店里，红色价签是台灯${red}元，蓝色价签是书包${blue}元，绿色价签是画册${green}元。小云只买红色和蓝色价签的商品，付${pay}元，应找回多少元？绿色价签要不要参与计算？`,
+        answer: `应找回${change}元。绿色价签不参与计算。`,
+        hints: ["先看题目说买了哪两种颜色。", "没有买的绿色价签商品不用算进去。"],
+        steps: [
+          `红色和蓝色价签一共${red}+${blue}=${red + blue}元。`,
+          `付${pay}元，应找回${pay}-${red + blue}=${change}元。`,
+          `绿色价签商品没有买，所以不参与计算。`
+        ],
+        extension: `如果又买绿色价签的画册，一共要${red + blue + green}元。`,
+        visual: {
+          type: "shopping",
+          label: "彩色价签",
+          prices: [red, blue, green, pay],
+          items: [
+            { name: "红色台灯", color: "红", price: red },
+            { name: "蓝色书包", color: "蓝", price: blue },
+            { name: "绿色画册", color: "绿", price: green },
+            { name: "付款", color: "黄", price: pay }
+          ]
+        }
       });
     }
   },

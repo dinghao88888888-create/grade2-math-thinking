@@ -54,6 +54,308 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+const COLOR_MAP = {
+  红: "#ef4444",
+  黄: "#facc15",
+  蓝: "#3b82f6",
+  绿: "#22c55e",
+  紫: "#8b5cf6",
+  橙: "#fb923c",
+  粉: "#ec4899"
+};
+
+const PLACE_COLORS = ["#6366f1", "#f97316", "#14b8a6", "#ec4899"];
+
+function extractNumbers(text) {
+  return [...String(text).matchAll(/\d+/g)].map((match) => Number(match[0]));
+}
+
+function colorValue(name, fallback = "#94a3b8") {
+  return COLOR_MAP[name] ?? fallback;
+}
+
+function inferVisual(question) {
+  const text = question.question;
+  const nums = extractNumbers(text);
+
+  const clockMatch = text.match(/时针刚过(\d+)，分针指向(\d+)/);
+  if (clockMatch) {
+    const hour = Number(clockMatch[1]);
+    const minuteMark = Number(clockMatch[2]);
+    return {
+      type: "clock",
+      hour,
+      minute: minuteMark === 12 ? 0 : minuteMark * 5,
+      label: "彩色钟面"
+    };
+  }
+
+  const cycleMatch = text.match(/按“([^”]+)”/);
+  if (cycleMatch) {
+    return {
+      type: "color-cycle",
+      cycle: cycleMatch[1].split("、"),
+      index: nums.at(-1),
+      label: "颜色循环"
+    };
+  }
+
+  if (question.chapterId === "remainder" || question.templateId === "review-open-reason") {
+    return {
+      type: "grouping",
+      total: nums[0],
+      groupSize: nums[1],
+      label: "分组盒"
+    };
+  }
+
+  if (question.chapterId === "numbers") {
+    const number = nums.find((item) => item >= 100 && item <= 9999);
+    return {
+      type: "place-value",
+      number,
+      digits: number ? String(number).padStart(4, "0").split("") : [],
+      label: "数位彩车"
+    };
+  }
+
+  if (question.chapterId === "addsub" || question.templateId === "review-number-shopping") {
+    return {
+      type: "shopping",
+      prices: nums.filter((item) => item >= 10).slice(0, 4),
+      label: "彩色小票"
+    };
+  }
+
+  if (question.chapterId === "time" || question.templateId === "review-route-plan" || question.templateId === "review-time-remainder") {
+    return {
+      type: "timeline",
+      segments: nums.filter((item) => item > 0 && item <= 80).slice(0, 4),
+      label: "时间路线"
+    };
+  }
+
+  if (question.chapterId === "relations") {
+    return {
+      type: "bar-model",
+      values: nums.slice(0, 4),
+      label: "关系图"
+    };
+  }
+
+  if (question.chapterId === "comics") {
+    return {
+      type: "story",
+      values: nums.slice(0, 4),
+      label: "故事分镜"
+    };
+  }
+
+  return {
+    type: "mission",
+    label: "数学任务"
+  };
+}
+
+function renderQuestionVisual(question, mode = "screen") {
+  const visual = question.visual ?? inferVisual(question);
+  const compact = mode === "print" ? " is-compact" : "";
+  const renderer = {
+    clock: renderClockVisual,
+    "color-cycle": renderColorCycleVisual,
+    grouping: renderGroupingVisual,
+    "place-value": renderPlaceValueVisual,
+    shopping: renderShoppingVisual,
+    timeline: renderTimelineVisual,
+    "bar-model": renderBarModelVisual,
+    story: renderStoryVisual,
+    mission: renderMissionVisual
+  }[visual.type] ?? renderMissionVisual;
+
+  return `<div class="math-scene${compact}">${renderer(visual, question, mode)}</div>`;
+}
+
+function renderSceneLabel(visual, question) {
+  return `
+    <div class="scene-label">
+      <span>${escapeHtml(visual.label ?? "数学任务")}</span>
+      <strong>${escapeHtml(question.title)}</strong>
+    </div>
+  `;
+}
+
+function renderClockVisual(visual, question) {
+  const hour = Number(visual.hour ?? 8);
+  const minute = Number(visual.minute ?? 0);
+  const minuteAngle = minute * 6 - 90;
+  const hourAngle = ((hour % 12) + minute / 60) * 30 - 90;
+  const minuteX = 60 + 42 * Math.cos((minuteAngle * Math.PI) / 180);
+  const minuteY = 60 + 42 * Math.sin((minuteAngle * Math.PI) / 180);
+  const hourX = 60 + 30 * Math.cos((hourAngle * Math.PI) / 180);
+  const hourY = 60 + 30 * Math.sin((hourAngle * Math.PI) / 180);
+  const ticks = Array.from({ length: 12 }, (_, index) => {
+    const n = index + 1;
+    const angle = n * 30 - 90;
+    const x = 60 + 48 * Math.cos((angle * Math.PI) / 180);
+    const y = 60 + 48 * Math.sin((angle * Math.PI) / 180);
+    return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}">${n}</text>`;
+  }).join("");
+
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="clock-scene">
+      <svg class="clock-svg" viewBox="0 0 120 120" role="img" aria-label="钟面图">
+        <circle cx="60" cy="60" r="56" class="clock-face" />
+        <circle cx="60" cy="60" r="48" class="clock-ring" />
+        <g class="clock-numbers">${ticks}</g>
+        <line x1="60" y1="60" x2="${hourX.toFixed(1)}" y2="${hourY.toFixed(1)}" class="hour-hand" />
+        <line x1="60" y1="60" x2="${minuteX.toFixed(1)}" y2="${minuteY.toFixed(1)}" class="minute-hand" />
+        <circle cx="60" cy="60" r="4" class="clock-pin" />
+      </svg>
+      <div class="scene-note">
+        <span class="color-key teal">时针</span>
+        <span class="color-key coral">分针</span>
+        <p>先看短短的时针，再看长长的分针。</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderColorCycleVisual(visual, question) {
+  const cycle = visual.cycle?.length ? visual.cycle : ["红", "黄", "蓝"];
+  const bulbs = [...cycle, ...cycle].map((name, index) => {
+    const color = colorValue(name);
+    return `<span class="cycle-bulb" style="--bulb:${color}"><i>${escapeHtml(name)}</i><em>${index + 1}</em></span>`;
+  }).join("");
+
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="cycle-scene">
+      <div class="cycle-strip">${bulbs}</div>
+      <div class="target-badge">找第 ${escapeHtml(visual.index ?? "?")} 盏</div>
+    </div>
+  `;
+}
+
+function renderGroupingVisual(visual, question) {
+  const total = Number(visual.total ?? 24);
+  const groupSize = Math.max(2, Number(visual.groupSize ?? 5));
+  const fullGroups = Math.min(5, Math.floor(total / groupSize));
+  const remainder = total % groupSize;
+  const boxes = Array.from({ length: fullGroups }, (_, boxIndex) => `
+    <div class="group-box">
+      <span>第${boxIndex + 1}组</span>
+      <div>${Array.from({ length: Math.min(groupSize, 8) }, (_, index) => `<i style="--dot:${PLACE_COLORS[index % PLACE_COLORS.length]}"></i>`).join("")}</div>
+    </div>
+  `).join("");
+  const remainderDots = Array.from({ length: Math.min(remainder, 8) }, (_, index) => `<i style="--dot:${COLOR_MAP.橙}"></i>`).join("");
+
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="grouping-scene">
+      ${boxes}
+      <div class="group-box remainder-box">
+        <span>剩下</span>
+        <div>${remainderDots || "<b>正好分完</b>"}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPlaceValueVisual(visual, question) {
+  const number = visual.number;
+  const digits = visual.digits?.length ? visual.digits : String(number ?? "0000").padStart(4, "0").slice(-4).split("");
+  const labels = ["千位", "百位", "十位", "个位"];
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="place-scene">
+      ${labels.map((label, index) => `
+        <div class="place-car" style="--place:${PLACE_COLORS[index]}">
+          <span>${label}</span>
+          <strong>${escapeHtml(digits[index] ?? "□")}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderShoppingVisual(visual, question) {
+  const prices = visual.prices?.length ? visual.prices : extractNumbers(question.question).filter((item) => item >= 10).slice(0, 3);
+  const items = visual.items?.length
+    ? visual.items
+    : prices.map((price, index) => ({ name: `物品${index + 1}`, price, color: ["粉", "蓝", "黄", "绿"][index % 4] }));
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="shopping-scene">
+      <div class="receipt">
+        <strong>彩色小票</strong>
+        ${items.map((item) => `<p><span><i style="--tag:${colorValue(item.color)}"></i>${escapeHtml(item.name)}</span><b>${escapeHtml(item.price)}元</b></p>`).join("")}
+      </div>
+      <div class="coin-stack">
+        <span>100</span><span>50</span><span>10</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderTimelineVisual(visual, question) {
+  const segments = visual.segments?.length ? visual.segments : [10, 20, 15];
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="timeline-scene">
+      ${segments.map((minutes, index) => `
+        <div class="time-block" style="--time:${PLACE_COLORS[index % PLACE_COLORS.length]}">
+          <span>${index + 1}</span>
+          <strong>${minutes}分</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderBarModelVisual(visual, question) {
+  const values = visual.values?.length ? visual.values : [1, 2, 3];
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="bar-scene">
+      ${values.slice(0, 3).map((value, index) => `
+        <div class="relation-row">
+          <span>数量${index + 1}</span>
+          <div style="--bar:${PLACE_COLORS[index % PLACE_COLORS.length]}; width:${Math.min(92, 36 + value * 7)}%"></div>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderStoryVisual(visual, question) {
+  const values = visual.values?.length ? visual.values : [1, 2, 3];
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="story-scene">
+      ${[0, 1, 2].map((index) => `
+        <div class="story-frame">
+          <span>图${index + 1}</span>
+          <strong>${escapeHtml(values[index] ?? "?")}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderMissionVisual(visual, question) {
+  return `
+    ${renderSceneLabel(visual, question)}
+    <div class="mission-scene">
+      <span>观察</span>
+      <span>画图</span>
+      <span>计算</span>
+      <span>说明</span>
+    </div>
+  `;
+}
+
 function formatDate(value) {
   return new Intl.DateTimeFormat("zh-CN", {
     month: "2-digit",
@@ -287,6 +589,8 @@ function renderPractice() {
           </div>
         </div>
 
+        ${renderQuestionVisual(question)}
+
         <div class="question-text">${escapeHtml(question.question)}</div>
 
         <div class="answer-box">
@@ -355,15 +659,11 @@ function renderWorksheetList() {
               <span class="mini-index">${index + 1}</span>
               <div>
                 <p><strong>${escapeHtml(question.chapterName)}｜${escapeHtml(question.skill)}</strong></p>
+                ${renderQuestionVisual(question, "print")}
                 <p>${escapeHtml(question.question)}</p>
                 <div class="answer-space ${question.level === "thinking" || question.level === "mixed" ? "is-large" : ""}" aria-label="答题区域">
                   <span>答：</span>
-                  <div class="answer-lines">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                  </div>
+                  <div class="answer-frame">我的算式和想法</div>
                 </div>
               </div>
             </div>
