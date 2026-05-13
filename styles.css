@@ -1381,7 +1381,7 @@ textarea {
 
 @media print {
   @page {
-    margin: 13mm 14mm;
+    margin: 8mm 9mm;
   }
 
   body {
@@ -1416,28 +1416,28 @@ textarea {
 
   .worksheet-title {
     align-items: flex-end;
-    margin-bottom: 10mm;
-    padding-bottom: 4mm;
+    margin-bottom: 4mm;
+    padding-bottom: 2.5mm;
     border-bottom: 2px solid #111827;
   }
 
   .worksheet-title h3 {
-    font-size: 20pt;
+    font-size: 16pt;
     line-height: 1.25;
   }
 
   .worksheet-title p,
   .worksheet-title span {
     color: #111827;
-    font-size: 10.5pt;
+    font-size: 9pt;
   }
 
   .mini-question {
     break-inside: avoid;
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 10px;
-    min-height: 58mm;
-    padding: 4mm 0 5mm;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 7px;
+    min-height: 34mm;
+    padding: 2.2mm 0 2.8mm;
     border-top: 1px solid #cfd8de;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
@@ -1448,71 +1448,78 @@ textarea {
   }
 
   .mini-index {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     color: #111827;
     background: transparent;
     border-radius: 0;
-    font-size: 11pt;
+    font-size: 9pt;
   }
 
   .mini-question p {
-    font-size: 12pt;
-    line-height: 1.65;
+    font-size: 9.5pt;
+    line-height: 1.42;
   }
 
   .math-scene {
-    margin: 2.5mm 0;
-    padding: 3mm;
+    margin: 1.4mm 0;
+    padding: 1.6mm;
     border: 1px solid #d7e4ef;
     background: #f8fbff;
     box-shadow: none;
+    max-height: 18mm;
   }
 
   .scene-label {
-    margin-bottom: 2mm;
+    margin-bottom: 1mm;
   }
 
   .scene-label span {
-    min-height: 18px;
-    padding: 1px 6px;
-    font-size: 8.5pt;
+    min-height: 14px;
+    padding: 0 5px;
+    font-size: 7pt;
   }
 
   .scene-label strong {
-    font-size: 9pt;
+    font-size: 7.5pt;
   }
 
   .clock-svg {
-    width: 30mm;
+    width: 19mm;
   }
 
   .scene-note {
-    min-width: 42mm;
-    gap: 2mm;
+    min-width: 34mm;
+    gap: 1mm;
   }
 
   .scene-note p {
-    font-size: 9pt;
+    font-size: 7.5pt;
+  }
+
+  .color-key {
+    padding: 1px 5px;
+    font-size: 7pt;
   }
 
   .cycle-bulb {
-    width: 32px;
-    min-height: 40px;
+    width: 24px;
+    min-height: 30px;
   }
 
   .cycle-bulb::before {
-    width: 28px;
-    height: 28px;
+    width: 21px;
+    height: 21px;
+    border-width: 2px;
   }
 
   .cycle-bulb i {
-    top: 5px;
-    font-size: 8pt;
+    top: 3px;
+    font-size: 6pt;
   }
 
   .cycle-bulb em {
-    font-size: 7pt;
+    font-size: 6pt;
   }
 
   .target-badge,
@@ -1522,136 +1529,145 @@ textarea {
   .time-block span,
   .relation-row span,
   .relation-row strong {
-    font-size: 8.5pt;
+    font-size: 7pt;
   }
 
   .group-box {
-    min-width: 23mm;
-    padding: 2mm;
+    min-width: 17mm;
+    padding: 1.2mm;
+    border-width: 1px;
   }
 
   .group-box div {
-    grid-template-columns: repeat(4, 8px);
-    gap: 3px;
+    grid-template-columns: repeat(4, 6px);
+    gap: 2px;
+    min-height: 16px;
   }
 
   .group-box i {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   .place-scene {
-    grid-template-columns: repeat(4, minmax(20mm, 1fr));
+    grid-template-columns: repeat(4, minmax(15mm, 1fr));
+    gap: 1.5mm;
   }
 
   .place-car {
-    min-height: 20mm;
+    min-height: 13mm;
+    padding: 1mm;
   }
 
   .place-car strong {
-    font-size: 18pt;
+    font-size: 12pt;
   }
 
   .receipt {
-    min-width: 46mm;
-    padding: 2.5mm;
+    min-width: 34mm;
+    padding: 1.4mm;
   }
 
   .coin-stack span {
-    width: 10mm;
-    height: 10mm;
-    font-size: 8pt;
+    width: 7.5mm;
+    height: 7.5mm;
+    font-size: 6.5pt;
+    border-width: 2px;
   }
 
   .time-block {
-    min-width: 23mm;
-    min-height: 15mm;
+    min-width: 18mm;
+    min-height: 11mm;
   }
 
   .time-block strong {
-    font-size: 12pt;
+    font-size: 9pt;
   }
 
   .story-frame,
   .mission-scene span {
-    min-width: 22mm;
-    min-height: 15mm;
+    min-width: 17mm;
+    min-height: 11mm;
   }
 
   .choice-board {
-    grid-template-columns: repeat(4, minmax(18mm, 1fr));
-    gap: 2mm;
+    grid-template-columns: repeat(4, minmax(14mm, 1fr));
+    gap: 1.4mm;
   }
 
   .choice-card {
-    min-height: 18mm;
-    padding: 2mm;
+    min-height: 12mm;
+    padding: 1.2mm;
   }
 
   .choice-card span {
-    width: 7mm;
-    height: 7mm;
-    font-size: 8pt;
+    width: 5mm;
+    height: 5mm;
+    font-size: 6.5pt;
   }
 
   .choice-card strong {
-    font-size: 10pt;
+    font-size: 8pt;
   }
 
   .ticket-grid {
-    grid-template-columns: repeat(var(--cols), 8mm);
-    gap: 1.5mm;
+    grid-template-columns: repeat(var(--cols), 6mm);
+    gap: 1mm;
   }
 
   .ticket-grid span {
-    width: 8mm;
-    height: 7mm;
-    font-size: 7.5pt;
+    width: 6mm;
+    height: 5mm;
+    font-size: 6pt;
   }
 
   .numberline-scene {
     width: 100%;
-    padding: 8mm 5mm 3mm;
+    padding: 5mm 4mm 2mm;
   }
 
   .numberline-marker,
   .numberline-track span {
-    font-size: 8pt;
+    font-size: 6.5pt;
   }
 
   .abacus-scene {
-    grid-template-columns: repeat(4, minmax(16mm, 1fr));
-    gap: 2mm;
+    grid-template-columns: repeat(4, minmax(12mm, 1fr));
+    gap: 1.2mm;
   }
 
   .abacus-rod {
-    min-height: 27mm;
-    padding: 2mm;
+    min-height: 18mm;
+    padding: 1mm;
   }
 
   .abacus-rod div {
-    min-height: 14mm;
+    min-height: 9mm;
+    gap: 1px;
+    border-left-width: 2px;
   }
 
   .abacus-rod i {
-    width: 6mm;
-    height: 2mm;
+    width: 4.5mm;
+    height: 1.4mm;
   }
 
   .answer-space {
-    margin-top: 3mm;
+    margin-top: 1.5mm;
     color: #111827;
-    font-size: 11pt;
+    font-size: 9.5pt;
   }
 
   .answer-frame {
-    min-height: 26mm;
+    min-height: 13mm;
+    padding: 1.5mm;
     color: rgba(15, 23, 42, 0.35);
     background: #fff7d6;
     border: 2px solid #f0b64f;
+    font-size: 8pt;
   }
 
   .answer-space.is-large .answer-frame {
-    min-height: 38mm;
+    min-height: 18mm;
   }
 }
