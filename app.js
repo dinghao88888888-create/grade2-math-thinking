@@ -456,6 +456,23 @@ function makePrintDocumentTitle() {
   return `二年级数学_${currentChapterName()}_${levelLabel(state.selectedLevel)}_${formatPrintTime(state.printTime).replaceAll(":", "-").replace(" ", "_")}`;
 }
 
+function needsWrittenWork(question) {
+  const text = `${question.title} ${question.skill} ${question.question}`;
+  const compactPatterns = ["选", "填", "口算", "比较大小", "排序", "读写", "换算", "可能是", "是多少？", "是多少?"];
+  const workPatterns = ["解决", "应用", "思维", "解释", "说明", "理由", "规划", "综合", "开放", "提出", "反推", "纠错", "至少", "来得及", "够不够", "还剩", "找回", "多用", "相差"];
+  if (workPatterns.some((pattern) => text.includes(pattern))) return true;
+  if (question.level === "thinking" || question.level === "mixed") {
+    return !compactPatterns.some((pattern) => text.includes(pattern));
+  }
+  return false;
+}
+
+function shouldPrintVisual(question) {
+  const visualType = (question.visual ?? inferVisual(question)).type;
+  const usefulTypes = ["clock", "color-cycle", "grouping", "place-value", "shopping", "timeline", "number-line", "choice-board", "ticket-grid", "abacus", "story"];
+  return usefulTypes.includes(visualType);
+}
+
 function getSettings() {
   return readJSON(STORAGE.settings, {
     selectedChapter: "all",
@@ -720,20 +737,24 @@ function renderWorksheetList() {
       </div>
       ${state.questions
         .map(
-          (question, index) => `
-            <div class="mini-question">
+          (question, index) => {
+            const hasWorkBox = needsWrittenWork(question);
+            const hasVisual = shouldPrintVisual(question);
+            return `
+            <div class="mini-question ${hasWorkBox ? "needs-work" : "compact-work"}">
               <span class="mini-index">${index + 1}</span>
               <div>
                 <p><strong>${escapeHtml(question.chapterName)}｜${escapeHtml(question.skill)}</strong></p>
-                ${renderQuestionVisual(question, "print")}
+                ${hasVisual ? renderQuestionVisual(question, "print") : ""}
                 <p>${escapeHtml(question.question)}</p>
-                <div class="answer-space ${question.level === "thinking" || question.level === "mixed" ? "is-large" : ""}" aria-label="答题区域">
+                ${hasWorkBox ? `<div class="answer-space ${question.level === "thinking" || question.level === "mixed" ? "is-large" : ""}" aria-label="答题区域">
                   <span>答：</span>
-                  <div class="answer-frame">我的算式和想法</div>
-                </div>
+                  <div class="answer-frame"></div>
+                </div>` : ""}
               </div>
             </div>
-          `
+          `;
+          }
         )
         .join("")}
     </section>

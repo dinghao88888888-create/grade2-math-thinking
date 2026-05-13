@@ -1158,9 +1158,9 @@ textarea {
 .answer-frame {
   min-height: 82px;
   padding: 10px;
-  color: #94a3b8;
-  background: #fffdf3;
-  border: 2px solid #f8c76d;
+  color: transparent;
+  background: #fff;
+  border: 2px solid #b8c3cc;
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 800;
@@ -1436,11 +1436,19 @@ textarea {
     break-inside: avoid;
     grid-template-columns: 24px minmax(0, 1fr);
     gap: 7px;
-    min-height: 34mm;
-    padding: 2.2mm 0 2.8mm;
+    min-height: 0;
+    padding: 2mm 0 2.4mm;
     border-top: 1px solid #cfd8de;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+
+  .mini-question.needs-work {
+    min-height: 31mm;
+  }
+
+  .mini-question.compact-work {
+    break-inside: auto;
   }
 
   .mini-question:first-of-type {
@@ -1659,15 +1667,15 @@ textarea {
   }
 
   .answer-frame {
-    min-height: 13mm;
+    min-height: 11mm;
     padding: 1.5mm;
-    color: rgba(15, 23, 42, 0.35);
-    background: #fff7d6;
-    border: 2px solid #f0b64f;
+    color: transparent;
+    background: #fff;
+    border: 1.5px solid #9aa7b0;
     font-size: 8pt;
   }
 
   .answer-space.is-large .answer-frame {
-    min-height: 18mm;
+    min-height: 16mm;
   }
 }
