@@ -473,6 +473,79 @@ function shouldPrintVisual(question) {
   return usefulTypes.includes(visualType);
 }
 
+const EXAM_SECTION_TITLES = {
+  fill: "填一填",
+  choice: "选一选",
+  time: "写时间 / 按要求做",
+  calc: "算一算",
+  solve: "解决问题",
+  bonus: "附加题"
+};
+
+const CHINESE_SECTION_NUMBERS = ["一", "二", "三", "四", "五", "六", "七"];
+
+function worksheetSectionFor(question) {
+  const text = `${question.title} ${question.skill} ${question.question}`;
+  const visualType = (question.visual ?? inferVisual(question)).type;
+
+  if (text.includes("数独") || text.includes("附加") || text.includes("反推") || text.includes("逻辑推理")) {
+    return "bonus";
+  }
+
+  if (text.includes("选择") || text.includes("选") || text.includes("哪种") || text.includes("哪一个") || text.includes("正确的是") || /A[.．]/.test(text)) {
+    return "choice";
+  }
+
+  if (text.includes("画") || text.includes("圈") || text.includes("连") || text.includes("钟面") || visualType === "clock" || visualType === "abacus" || visualType === "ticket-grid") {
+    return "time";
+  }
+
+  if (text.includes("计算") || text.includes("验算") || text.includes("算一算") || text.includes("口算") || /[+\-×÷]/.test(question.title)) {
+    return "calc";
+  }
+
+  if (needsWrittenWork(question)) {
+    return "solve";
+  }
+
+  return "fill";
+}
+
+function groupWorksheetQuestions() {
+  const groups = {
+    fill: [],
+    choice: [],
+    time: [],
+    calc: [],
+    solve: [],
+    bonus: []
+  };
+
+  state.questions.forEach((question) => {
+    groups[worksheetSectionFor(question)].push(question);
+  });
+
+  return Object.entries(groups)
+    .filter(([, questions]) => questions.length > 0)
+    .map(([id, questions], index) => ({
+      id,
+      title: `${CHINESE_SECTION_NUMBERS[index]}、${EXAM_SECTION_TITLES[id]}。`,
+      questions
+    }));
+}
+
+function sectionScore(section) {
+  const points = {
+    fill: 2,
+    choice: 2,
+    time: 4,
+    calc: 4,
+    solve: 6,
+    bonus: 10
+  }[section.id] ?? 4;
+  return section.id === "bonus" ? 10 : section.questions.length * points;
+}
+
 function getSettings() {
   return readJSON(STORAGE.settings, {
     selectedChapter: "all",
@@ -759,6 +832,81 @@ function renderWorksheetList() {
         .join("")}
     </section>
   `;
+}
+
+function renderWorksheetList() {
+  const worksheetTitle = makeWorksheetTitle();
+  const printTime = formatPrintTime(state.printTime);
+  const sections = groupWorksheetQuestions();
+  const normalScore = sections
+    .filter((section) => section.id !== "bonus")
+    .reduce((total, section) => total + sectionScore(section), 0);
+  const bonusScore = sections.some((section) => section.id === "bonus") ? 10 : 0;
+
+  return `
+    <section class="worksheet-list exam-paper">
+      <div class="worksheet-title exam-title">
+        <div>
+          <h3>${escapeHtml(worksheetTitle)}</h3>
+          <p>考试时间：40分钟　满分：${normalScore}${bonusScore ? `+${bonusScore}` : ""}分　打印时间：${escapeHtml(printTime)}</p>
+        </div>
+        <span>姓名：_________</span>
+      </div>
+      <table class="score-table" aria-label="得分表">
+        <tbody>
+          <tr>
+            <th>题序</th>
+            ${sections.map((section, index) => `<td>${CHINESE_SECTION_NUMBERS[index]}</td>`).join("")}
+            <td>总分</td>
+          </tr>
+          <tr>
+            <th>得分</th>
+            ${sections.map(() => "<td></td>").join("")}
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="exam-columns">
+        ${sections.map(renderExamSection).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderExamSection(section) {
+  const score = sectionScore(section);
+  return `
+    <section class="exam-section exam-section-${section.id}">
+      <h4>${escapeHtml(section.title)}<span>（共${score}分）</span></h4>
+      ${section.questions.map((question, index) => renderExamQuestion(question, index + 1, section.id)).join("")}
+    </section>
+  `;
+}
+
+function renderExamQuestion(question, index, sectionId) {
+  const hasWorkBox = needsWrittenWork(question) && (sectionId === "solve" || sectionId === "bonus");
+  const hasVisual = shouldPrintVisual(question);
+  return `
+    <div class="mini-question exam-question ${hasWorkBox ? "needs-work" : "compact-work"} ${hasVisual ? "has-visual" : ""}">
+      <span class="mini-index">${index}.</span>
+      <div class="exam-question-body">
+        <p class="exam-skill">${escapeHtml(question.skill)}</p>
+        <p class="exam-question-text">${escapeHtml(question.question)}</p>
+        ${hasVisual ? renderQuestionVisual(question, "print") : ""}
+        ${hasWorkBox ? `<div class="answer-space ${question.level === "thinking" || question.level === "mixed" ? "is-large" : ""}" aria-label="答题区域">
+          <span>答：</span>
+          <div class="answer-frame"></div>
+        </div>` : renderCompactBlank(sectionId)}
+      </div>
+    </div>
+  `;
+}
+
+function renderCompactBlank(sectionId) {
+  if (sectionId === "choice") return "";
+  if (sectionId === "calc") return `<div class="compact-lines"><span></span><span></span></div>`;
+  if (sectionId === "time") return `<div class="compact-answer-row">____时____分　　____:____</div>`;
+  return "";
 }
 
 function renderWrongbook() {

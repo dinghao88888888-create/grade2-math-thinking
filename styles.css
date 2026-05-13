@@ -1170,6 +1170,110 @@ textarea {
   min-height: 124px;
 }
 
+.exam-paper {
+  color: #111827;
+  font-family: "Times New Roman", "Noto Serif SC", "SimSun", serif;
+}
+
+.exam-title {
+  align-items: flex-end;
+  text-align: center;
+}
+
+.exam-title h3 {
+  font-weight: 500;
+}
+
+.score-table {
+  width: min(760px, 100%);
+  margin: 10px auto 18px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 15px;
+}
+
+.score-table th,
+.score-table td {
+  height: 38px;
+  border: 1px solid #525252;
+  text-align: center;
+  font-weight: 500;
+}
+
+.score-table th {
+  width: 86px;
+  background: #f3f4f6;
+}
+
+.exam-columns {
+  column-count: 2;
+  column-gap: 34px;
+  column-rule: 0;
+}
+
+.exam-section {
+  break-inside: avoid;
+  margin: 0 0 16px;
+}
+
+.exam-section h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.exam-section h4 span {
+  margin-left: 8px;
+  font-size: 15px;
+}
+
+.exam-question {
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 0;
+  break-inside: avoid;
+}
+
+.exam-question .mini-index {
+  width: auto;
+  height: auto;
+  color: #111827;
+  background: transparent;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.exam-skill {
+  display: none;
+}
+
+.exam-question-text {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.compact-answer-row {
+  margin-top: 6px;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.compact-lines {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.compact-lines span {
+  display: block;
+  height: 1px;
+  background: #9ca3af;
+}
+
 .wrong-list,
 .library-list,
 .parent-grid {
@@ -1412,39 +1516,90 @@ textarea {
     border: 0;
     box-shadow: none;
     padding: 0;
+    color: #111827;
+    font-family: "Times New Roman", "Noto Serif SC", "SimSun", serif;
   }
 
   .worksheet-title {
     align-items: flex-end;
-    margin-bottom: 4mm;
-    padding-bottom: 2.5mm;
-    border-bottom: 2px solid #111827;
+    justify-content: center;
+    gap: 8mm;
+    margin-bottom: 2mm;
+    padding-bottom: 0;
+    border-bottom: 0;
+    text-align: center;
   }
 
   .worksheet-title h3 {
-    font-size: 16pt;
-    line-height: 1.25;
+    font-size: 15pt;
+    font-weight: 500;
+    line-height: 1.2;
   }
 
   .worksheet-title p,
   .worksheet-title span {
     color: #111827;
-    font-size: 9pt;
+    font-size: 9.5pt;
+    font-weight: 500;
+  }
+
+  .score-table {
+    width: 93mm;
+    margin: 2mm 0 3.5mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 10pt;
+  }
+
+  .score-table th,
+  .score-table td {
+    height: 7.5mm;
+    border: 0.5pt solid #333;
+    text-align: center;
+    font-weight: 400;
+  }
+
+  .score-table th {
+    width: 17mm;
+    background: #f1f1f1;
+  }
+
+  .exam-columns {
+    column-count: 2;
+    column-gap: 9mm;
+  }
+
+  .exam-section {
+    break-inside: avoid;
+    margin: 0 0 2.5mm;
+  }
+
+  .exam-section h4 {
+    break-after: avoid;
+    margin: 0 0 1mm;
+    font-size: 11pt;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  .exam-section h4 span {
+    margin-left: 1.5mm;
+    font-size: 9.5pt;
   }
 
   .mini-question {
     break-inside: avoid;
-    grid-template-columns: 24px minmax(0, 1fr);
-    gap: 7px;
+    grid-template-columns: 5.5mm minmax(0, 1fr);
+    gap: 1mm;
     min-height: 0;
-    padding: 2mm 0 2.4mm;
-    border-top: 1px solid #cfd8de;
+    padding: 0.8mm 0 1.2mm;
+    border-top: 0;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
 
   .mini-question.needs-work {
-    min-height: 31mm;
+    min-height: 23mm;
   }
 
   .mini-question.compact-work {
@@ -1456,30 +1611,57 @@ textarea {
   }
 
   .mini-index {
-    width: 18px;
-    height: 18px;
+    width: auto;
+    height: auto;
     color: #111827;
     background: transparent;
     border-radius: 0;
-    font-size: 9pt;
+    font-family: inherit;
+    font-size: 10.5pt;
+    font-weight: 500;
   }
 
   .mini-question p {
-    font-size: 9.5pt;
-    line-height: 1.42;
+    font-size: 10.5pt;
+    line-height: 1.65;
+  }
+
+  .exam-skill {
+    display: none;
+  }
+
+  .exam-question-text {
+    margin: 0;
+  }
+
+  .compact-answer-row {
+    margin-top: 0.5mm;
+    font-size: 10pt;
+    line-height: 1.6;
+  }
+
+  .compact-lines {
+    display: grid;
+    gap: 2.5mm;
+    margin: 1mm 0 0;
+  }
+
+  .compact-lines span {
+    height: 0.5pt;
+    background: #777;
   }
 
   .math-scene {
-    margin: 1.4mm 0;
-    padding: 1.6mm;
-    border: 1px solid #d7e4ef;
-    background: #f8fbff;
+    margin: 0.8mm 0 1.2mm;
+    padding: 1mm;
+    border: 0;
+    background: transparent;
     box-shadow: none;
-    max-height: 18mm;
+    max-height: none;
   }
 
   .scene-label {
-    margin-bottom: 1mm;
+    display: none;
   }
 
   .scene-label span {
