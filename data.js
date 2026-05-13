@@ -1436,6 +1436,423 @@ export const templates = [
         }
       });
     }
+  },
+  {
+    id: "time-draw-next-clock",
+    chapterId: "time",
+    level: "variant",
+    skill: "写时间与画钟面",
+    title: "按规律画钟面",
+    factory(template) {
+      const startHour = randInt(7, 9);
+      const startMinute = choice([0, 5, 10, 15, 20]);
+      const step = choice([10, 15, 20, 30]);
+      const first = startHour * 60 + startMinute;
+      const second = first + step;
+      const third = second + step;
+      const fourth = third + step;
+      return makeQuestion(template, {
+        question: `三个钟面依次表示${digitalTime(first)}、${digitalTime(second)}、${digitalTime(third)}。请写出下一个钟面应表示的时间，并说一说规律。`,
+        answer: `下一个时间是${formatTime(fourth)}，规律是每次增加${step}分钟。`,
+        hints: ["先比较相邻两个时间相差多少分钟。", "找到相同的间隔后，再往后推一次。"],
+        steps: [
+          `${digitalTime(second)}比${digitalTime(first)}晚${step}分钟。`,
+          `${digitalTime(third)}比${digitalTime(second)}也晚${step}分钟。`,
+          `所以${digitalTime(third)}再过${step}分钟是${digitalTime(fourth)}。`
+        ],
+        extension: `如果再往后推一个钟面，应是${formatTime(fourth + step)}。`,
+        visual: { type: "timeline", label: "钟面规律", segments: [step, step, step] }
+      });
+    }
+  },
+  {
+    id: "time-schedule-table",
+    chapterId: "time",
+    level: "thinking",
+    skill: "时间表推理",
+    title: "参观时间安排表",
+    factory(template) {
+      const start = randInt(8 * 60, 9 * 60);
+      const visit = choice([25, 30, 35]);
+      const gap = choice([5, 10]);
+      const classes = ["二(1)班", "二(2)班", "二(3)班"];
+      const target = start + (visit + gap) * 2;
+      return makeQuestion(template, {
+        question: `科技馆参观安排：${classes[0]}从${digitalTime(start)}开始，参观${visit}分钟；每两个班之间整理${gap}分钟。按顺序轮到${classes[2]}开始参观时，是几时几分？`,
+        answer: `${classes[2]}开始参观的时间是${formatTime(target)}。`,
+        hints: ["一个班结束后，还要加上整理时间。", "从第1个班到第3个班，要经过两段“参观+整理”。"],
+        steps: [
+          `一段间隔是${visit}+${gap}=${visit + gap}分钟。`,
+          `从${classes[0]}到${classes[2]}开始要经过2段，共${(visit + gap) * 2}分钟。`,
+          `${digitalTime(start)}+${(visit + gap) * 2}分钟=${digitalTime(target)}。`
+        ],
+        extension: `如果第4个班也参加，开始时间会是${formatTime(start + (visit + gap) * 3)}。`,
+        visual: { type: "timeline", label: "参观安排", segments: [visit, gap, visit, gap] }
+      });
+    }
+  },
+  {
+    id: "remainder-vertical-meaning",
+    chapterId: "remainder",
+    level: "foundation",
+    skill: "竖式含义",
+    title: "竖式中的数表示什么",
+    factory(template) {
+      const divisor = randInt(4, 8);
+      const quotient = randInt(3, 7);
+      const remainder = randInt(1, divisor - 1);
+      const total = divisor * quotient + remainder;
+      return makeQuestion(template, {
+        question: `${total}个奖章平均分给${divisor}个小组，每组分${quotient}个，还剩${remainder}个。竖式里“${divisor * quotient}”表示什么意思？`,
+        answer: `“${divisor * quotient}”表示已经分掉的${divisor * quotient}个奖章。`,
+        hints: ["竖式中商和除数相乘，表示已经分掉的数量。", "余数表示还剩下没有分完的数量。"],
+        steps: [
+          `每组${quotient}个，${divisor}个小组一共分掉${quotient}×${divisor}=${divisor * quotient}个。`,
+          `总数${total}个，分掉${divisor * quotient}个，还剩${remainder}个。`
+        ],
+        extension: `如果每组再多分1个，需要${divisor}个奖章，但现在只剩${remainder}个，所以不够。`,
+        visual: { type: "grouping", label: "竖式含义", total, groupSize: divisor }
+      });
+    }
+  },
+  {
+    id: "remainder-covered-beads",
+    chapterId: "remainder",
+    level: "thinking",
+    skill: "周期与遮挡",
+    title: "盒子遮住了几颗",
+    factory(template) {
+      const total = choice([19, 21, 23, 25, 27]);
+      const visibleWhite = randInt(3, 6);
+      const whiteTotal = Math.floor(total / 2);
+      const hiddenWhite = Math.max(1, whiteTotal - visibleWhite);
+      return makeQuestion(template, {
+        question: `一串珠子按“黑、白、黑、白……”排列，共${total}颗。盒子外面能看到${visibleWhite}颗白珠，盒子里面遮住了几颗白珠？`,
+        answer: `遮住了${hiddenWhite}颗白珠。`,
+        hints: ["先根据总颗数和排列规律，算出白珠一共有多少颗。", "再减去盒子外面已经看到的白珠。"],
+        steps: [
+          `黑白一组，每2颗里有1颗白珠。`,
+          `${total}颗从黑珠开始排列，白珠共有${whiteTotal}颗。`,
+          `${whiteTotal}-${visibleWhite}=${hiddenWhite}颗。`
+        ],
+        extension: `如果第1颗是白珠，那么白珠总数会变成${Math.ceil(total / 2)}颗，答案也会改变。`,
+        visual: { type: "color-cycle", label: "遮挡珠串", cycle: ["黑", "白"], index: total }
+      });
+    }
+  },
+  {
+    id: "remainder-weekday-cycle",
+    chapterId: "remainder",
+    level: "thinking",
+    skill: "星期周期",
+    title: "这个月从星期几开始",
+    factory(template) {
+      const days = choice([28, 29, 30, 31]);
+      const weekday = choice(["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]);
+      const count = Math.floor((days - 1) / 7) + 1;
+      return makeQuestion(template, {
+        question: `某月有${days}天，1日是${weekday}。这个月和1日同样是${weekday}的日期一共有几个？`,
+        answer: `一共有${count}个。`,
+        hints: ["同一个星期几每隔7天出现一次。", "从1日开始数：1、8、15……"],
+        steps: [
+          `同样的星期几日期是1、8、15、22、29……`,
+          `不超过${days}的有${count}个。`
+        ],
+        extension: `如果问${weekday}最后一次出现是几日，可以找不超过${days}的最大“1+7×几”。`,
+        visual: { type: "ticket-grid", label: "日历周期", rows: 5, cols: 7, filled: days }
+      });
+    }
+  },
+  {
+    id: "remainder-buy-boxes",
+    chapterId: "remainder",
+    level: "variant",
+    skill: "至少与最多",
+    title: "买几盒才够",
+    factory(template) {
+      const need = randInt(27, 58);
+      const per = randInt(6, 9);
+      const price = randInt(5, 12);
+      const boxes = Math.ceil(need / per);
+      const money = price * boxes - randInt(0, price - 1);
+      const canBuy = Math.floor(money / price);
+      return makeQuestion(template, {
+        question: `文具店铅笔${per}支一盒，每盒${price}元。老师需要${need}支，至少要买几盒？如果带了${money}元，最多可以买几盒？`,
+        answer: `至少要买${boxes}盒；${money}元最多可以买${canBuy}盒。`,
+        hints: ["“至少够用”有剩余也要再买一盒。", "“最多买几盒”只看钱能买满几盒，余下的钱不够一盒就不算。"],
+        steps: [
+          `${need}÷${per}=${Math.floor(need / per)}……${need % per}，所以至少买${boxes}盒。`,
+          `${money}÷${price}=${canBuy}……${money % price}，所以最多买${canBuy}盒。`
+        ],
+        extension: `这道题里，同样是除法，有时要进一，有时只取商。`,
+        visual: { type: "grouping", label: "至少与最多", total: need, groupSize: per }
+      });
+    }
+  },
+  {
+    id: "relations-missing-condition",
+    chapterId: "relations",
+    level: "variant",
+    skill: "补条件",
+    title: "选择合适条件",
+    factory(template) {
+      const black = randInt(4, 9);
+      const multiple = randInt(2, 5);
+      const white = black * multiple;
+      return makeQuestion(template, {
+        question: `“____，白兔的只数是黑兔的${multiple}倍，白兔有多少只？”要让题目能用${black}×${multiple}解决，横线上应填什么？A.黑兔有${black}只 B.白兔有${white}只 C.一共有${black + white}只 D.白兔比黑兔多${white - black}只`,
+        answer: `选A。要知道黑兔有${black}只，才能求它的${multiple}倍是多少。`,
+        hints: ["求一个数的几倍是多少，要知道这个数。", "横线上的条件应该给出“1份”的数量。"],
+        steps: [
+          `黑兔是1份，白兔是${multiple}份。`,
+          `1份是${black}只，所以白兔有${black}×${multiple}=${white}只。`
+        ],
+        extension: `如果已知白兔有${white}只，求黑兔，就要用${white}÷${multiple}。`,
+        visual: {
+          type: "choice-board",
+          label: "补条件",
+          cards: [
+            { label: "A", text: `黑兔${black}` },
+            { label: "B", text: `白兔${white}` },
+            { label: "C", text: "一共" },
+            { label: "D", text: "多几只" }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "relations-draw-multiple",
+    chapterId: "relations",
+    level: "foundation",
+    skill: "画倍数关系",
+    title: "画一画表示几倍",
+    factory(template) {
+      const circles = randInt(8, 16);
+      const multiple = choice([2, 3, 4]);
+      const triangles = circles / multiple === Math.floor(circles / multiple) ? circles / multiple : randInt(3, 6);
+      const adjustedCircles = triangles * multiple;
+      return makeQuestion(template, {
+        question: `第一行有${adjustedCircles}个○。请在第二行画△，使○的个数是△的${multiple}倍。第二行应画几个△？`,
+        answer: `应画${triangles}个△。`,
+        hints: ["○是△的几倍，说明○多，△少。", "求1份是多少，用除法。"],
+        steps: [
+          `${adjustedCircles}÷${multiple}=${triangles}。`,
+          `所以第二行画${triangles}个△。`
+        ],
+        extension: `如果第二行多画1个△，第一行就应该有${(triangles + 1) * multiple}个○才对。`,
+        visual: { type: "bar-model", label: "倍数画图", values: [triangles, adjustedCircles] }
+      });
+    }
+  },
+  {
+    id: "relations-growth-half",
+    chapterId: "relations",
+    level: "thinking",
+    skill: "反向倍数",
+    title: "铺满前一半",
+    factory(template) {
+      const days = choice([3, 4, 5]);
+      const full = days * randInt(4, 6);
+      return makeQuestion(template, {
+        question: `一种浮水植物每${days}天面积变成原来的2倍。如果第${full}天刚好铺满池塘，那么第几天铺了池塘的一半？`,
+        answer: `第${full - days}天铺了池塘的一半。`,
+        hints: ["铺满前一次，就是一半。", "每过一段时间变成2倍，反过来就减去这一段时间。"],
+        steps: [
+          `第${full}天是满池。`,
+          `往前${days}天，面积正好是满池的一半。`,
+          `${full}-${days}=${full - days}。`
+        ],
+        extension: `如果问四分之一池塘，就是再往前${days}天，即第${full - days * 2}天。`,
+        visual: { type: "bar-model", label: "倍数反推", values: [1, 2, 4] }
+      });
+    }
+  },
+  {
+    id: "numbers-card-build",
+    chapterId: "numbers",
+    level: "thinking",
+    skill: "数字卡片组数",
+    title: "按要求组四位数",
+    factory(template) {
+      const digits = shuffle([0, randInt(1, 3), randInt(4, 6), randInt(7, 9)]);
+      const valid = digits.filter((digit) => digit !== 0).map((thousand) => {
+        const rest = digits.filter((digit) => digit !== thousand).sort((a, b) => a - b);
+        return Number([thousand, ...rest].join(""));
+      });
+      const smallest = Math.min(...valid);
+      const largest = Number([...digits].sort((a, b) => b - a).join(""));
+      return makeQuestion(template, {
+        question: `用数字卡片${digits.join("、")}各一次组成四位数。能组成的最小四位数是多少？最大的四位数是多少？`,
+        answer: `最小四位数是${smallest}，最大四位数是${largest}。`,
+        hints: ["四位数的千位不能是0。", "最小数要让高位尽量小，最大数要让高位尽量大。"],
+        steps: [
+          `最小四位数：千位选不是0的最小数字，再把剩下数字从小到大排列。`,
+          `最大四位数：把数字从大到小排列。`
+        ],
+        extension: `如果要求“一个零也不读”，还要考虑0放在哪一位。`,
+        visual: { type: "place-value", label: "数字卡片", number: smallest, digits: String(smallest).split("") }
+      });
+    }
+  },
+  {
+    id: "numbers-counter-abacus",
+    chapterId: "numbers",
+    level: "variant",
+    skill: "计数器与算盘",
+    title: "拨珠表示数",
+    factory(template) {
+      const number = randInt(2000, 8999);
+      const digits = String(number).split("").map(Number);
+      return makeQuestion(template, {
+        question: `在计数器上表示${number}，千位、百位、十位、个位分别应拨几颗珠子？`,
+        answer: `千位${digits[0]}颗，百位${digits[1]}颗，十位${digits[2]}颗，个位${digits[3]}颗。`,
+        hints: ["每一位上的数字，就是这一位要拨的珠子数。", "从左到右依次看千、百、十、个。"],
+        steps: [
+          `${number}由${digits[0]}个千、${digits[1]}个百、${digits[2]}个十和${digits[3]}个一组成。`,
+          `所以四个数位分别拨${digits.join("、")}颗。`
+        ],
+        extension: `如果在百位多拨1颗，这个数会增加100。`,
+        visual: { type: "abacus", label: "计数器", digits }
+      });
+    }
+  },
+  {
+    id: "numbers-nearest-estimate",
+    chapterId: "numbers",
+    level: "foundation",
+    skill: "近似数",
+    title: "谁最接近目标数",
+    factory(template) {
+      const target = choice([2000, 3000, 5000, 8000]);
+      const values = shuffle([target - randInt(20, 90), target + randInt(100, 260), target - randInt(300, 520), target + randInt(30, 95)]);
+      const nearest = values.reduce((best, value) => Math.abs(value - target) < Math.abs(best - target) ? value : best, values[0]);
+      return makeQuestion(template, {
+        question: `下面哪个数最接近${target}？A.${values[0]} B.${values[1]} C.${values[2]} D.${values[3]}`,
+        answer: `${nearest}最接近${target}。`,
+        hints: ["分别算出每个数和目标数相差多少。", "相差越小，越接近。"],
+        steps: values.map((value) => `${value}和${target}相差${Math.abs(value - target)}。`).concat([`相差最小的是${nearest}。`]),
+        extension: `估计价格、人数、页数时，经常要找最接近的整千数或整百数。`,
+        visual: { type: "number-line", label: "接近谁", start: target - 600, end: target + 600, marker: nearest }
+      });
+    }
+  },
+  {
+    id: "addsub-verify-method",
+    chapterId: "addsub",
+    level: "foundation",
+    skill: "验算",
+    title: "哪种验算正确",
+    factory(template) {
+      const a = randInt(360, 780);
+      const b = randInt(120, 360);
+      const sum = a + b;
+      return makeQuestion(template, {
+        question: `计算${a}+${b}=${sum}后，下面哪种方法可以验算？A.${sum}-${a} B.${sum}+${a} C.${a}-${b} D.${b}-${a}`,
+        answer: `选A。和减去一个加数，应等于另一个加数。`,
+        hints: ["加法验算可以用减法。", "看能不能回到另一个加数。"],
+        steps: [
+          `${sum}-${a}=${b}。`,
+          `结果正好是另一个加数${b}，所以可以验算。`
+        ],
+        extension: `也可以用${sum}-${b}=${a}来验算。`,
+        visual: {
+          type: "choice-board",
+          label: "验算选择",
+          cards: [
+            { label: "A", text: `${sum}-${a}` },
+            { label: "B", text: `${sum}+${a}` },
+            { label: "C", text: `${a}-${b}` },
+            { label: "D", text: `${b}-${a}` }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "addsub-book-pages",
+    chapterId: "addsub",
+    level: "variant",
+    skill: "连续页码",
+    title: "第三天从哪页开始",
+    factory(template) {
+      const total = randInt(260, 460);
+      const day1 = randInt(80, 160);
+      const day2 = randInt(60, 130);
+      const next = day1 + day2 + 1;
+      return makeQuestion(template, {
+        question: `一本书共有${total}页。第一天看了${day1}页，第二天看了${day2}页。第三天应从第几页开始看？`,
+        answer: `第三天应从第${next}页开始看。`,
+        hints: ["先算前两天一共看了多少页。", "已经看完第几页，下一天就从后一页开始。"],
+        steps: [
+          `${day1}+${day2}=${day1 + day2}页。`,
+          `前两天看完第${day1 + day2}页，第三天从第${next}页开始。`
+        ],
+        extension: `剩下还要看${total - day1 - day2}页。`,
+        visual: { type: "number-line", label: "页码进度", start: 1, end: total, marker: next }
+      });
+    }
+  },
+  {
+    id: "addsub-shopping-discount",
+    chapterId: "addsub",
+    level: "thinking",
+    skill: "购物优惠",
+    title: "满减后应付多少",
+    factory(template) {
+      const a = randInt(260, 430);
+      const b = randInt(220, 390);
+      const threshold = choice([500, 600, 700]);
+      const discount = choice([50, 60, 80]);
+      const total = a + b;
+      const pay = total >= threshold ? total - discount : total;
+      return makeQuestion(template, {
+        question: `商场促销：消费满${threshold}元减${discount}元。妈妈买一件${a}元的衣服和一个${b}元的书包，实际应付多少元？`,
+        answer: `实际应付${pay}元。`,
+        hints: ["先算原价一共多少元。", "再判断是否达到满减条件。"],
+        steps: [
+          `${a}+${b}=${total}元。`,
+          total >= threshold ? `${total}元满${threshold}元，可以减${discount}元。` : `${total}元没有满${threshold}元，不能减。`,
+          `实际应付${pay}元。`
+        ],
+        extension: total >= threshold ? `优惠后比原价少${discount}元。` : `还差${threshold - total}元才能参加满减。`,
+        visual: {
+          type: "shopping",
+          label: "促销小票",
+          prices: [a, b, pay],
+          items: [
+            { name: "衣服", color: "红", price: a },
+            { name: "书包", color: "蓝", price: b },
+            { name: "应付", color: "黄", price: pay }
+          ]
+        }
+      });
+    }
+  },
+  {
+    id: "review-mini-sudoku",
+    chapterId: "review",
+    level: "thinking",
+    skill: "逻辑推理",
+    title: "简版数独",
+    factory(template) {
+      const a = randInt(1, 4);
+      const b = randInt(1, 4);
+      const fixedB = b === a ? (b % 4) + 1 : b;
+      const answer = a + fixedB;
+      return makeQuestion(template, {
+        question: `一个简版数独每行、每列都只能出现1、2、3、4各一次。已知第一行缺少${a}，第二列缺少${fixedB}，那么a+b等于多少？`,
+        answer: `a+b=${a}+${fixedB}=${answer}。`,
+        hints: ["每行每列都不能重复。", "先确定每个空格缺少的数，再相加。"],
+        steps: [
+          `第一行缺少的数是${a}，所以a=${a}。`,
+          `第二列缺少的数是${fixedB}，所以b=${fixedB}。`,
+          `a+b=${answer}。`
+        ],
+        extension: `这类题不是先算，而是先根据“不重复”的规则排除。`,
+        visual: { type: "ticket-grid", label: "简版数独", rows: 4, cols: 4, filled: 10 }
+      });
+    }
   }
 ];
 
