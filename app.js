@@ -796,7 +796,7 @@ function renderSolution(question) {
   `;
 }
 
-function renderWorksheetList() {
+function renderWorksheetListLegacy() {
   const worksheetTitle = makeWorksheetTitle();
   const printTime = formatPrintTime(state.printTime);
   return `
